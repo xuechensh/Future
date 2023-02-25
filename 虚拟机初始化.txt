@@ -1,0 +1,131 @@
+step0
+开启双网卡，第一个仅主机模式，第二个Nat模式
+注意：装系统的时候要把网络开关打开，要不系统启动后无法链接外网
+注意：仅主机模式本地主机可以连虚拟机，但虚拟机无法直接ping通主机，但无所谓，ssh能登进去就行。
+
+step 1
+vi /etc/sysconfig/network-scripts/ifcfg-enp0s3 
+########
+TYPE=Ethernet
+BOOTPROTO=static
+NAME=enp0s3
+DEVICE=enp0s3
+ONBOOT=yes
+IPADDR=192.168.56.100
+NETMASK=255.255.255.0
+GATEWAY=192.168.56.1
+DNS1=8.8.8.8
+
+
+step2
+systemctl stop firewalld
+systemctl  disable firewalld.service
+
+step3
+vi /etc/selinux/config 
+#####
+SELINUX=disabled
+
+step4
+systemctl restart network
+
+step5
+yum install wget
+mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
+ vi /etc/yum.repos.d/CentOS-Base.repo
+# %s/$releasever/7/g 
+ yum clean all
+ yum makecache 
+ yum install vim
+ 
+ step6
+ yum install unzip
+vim /etc/yum.repos.d/vbatts-bazel-epel-7.repo
+//
+[copr:copr.fedorainfracloud.org:vbatts:bazel]
+name=Copr repo for bazel owned by vbatts
+baseurl=https://download.copr.fedorainfracloud.org/results/vbatts/bazel/epel-7-$basearch/
+type=rpm-md
+skip_if_unavailable=True
+gpgcheck=1
+gpgkey=https://download.copr.fedorainfracloud.org/results/vbatts/bazel/pubkey.gpg
+repo_gpgcheck=0
+enabled=1
+enabled_metadata=1
+//
+yum install bazel4
+
+step7
+wget https://www.python.org/ftp/python/3.6.1/Python-3.6.1.tgz  
+tar -zxvf Python-3.6.1.tgz  
+mv Python-3.6.1 /usr/local/python3
+yum -y install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel make
+cd /usr/local/python3
+./configure --prefix=/usr/local/python3
+make
+make install
+ln -s /usr/local/python3/bin/python3 /usr/bin/python3
+ln -s /usr/local/python3/bin/pip3 /usr/bin/pip3 
+python3 -m pip install -U pip
+
+step8
+yum install centos-release-scl-rh
+yum install devtoolset-9-build
+yum install devtoolset-9-gdb
+yum install devtoolset-9-gcc devtoolset-9-gcc-c++
+source /opt/rh/devtoolset-9/enable
+vim /etc/profile
+# source /opt/rh/devtoolset-9/enable
+gcc -v
+g++ -v
+
+step9 protobuf
+wget https://github.com/protocolbuffers/protobuf/releases/download/v21.9/protobuf-all-21.9.tar.gz
+tar zxvf protobuf-all-21.9.tar.gz
+cd protobuf-21.9/
+./autogen.sh
+./configure -prefix=/usr/local/
+make
+make check
+make install
+protoc --version
+
+###########MySQL++安装###########
+# 参考：https://blog.csdn.net/liangwenhao1108/article/details/112300204
+yum install mysql-devel
+wget https://tangentsoft.com/mysqlpp/releases/mysql++-3.3.0.tar.gz
+tar -zxvf mysql++-3.3.0.tar.gz
+cd mysql++-3.3.0
+./configure
+make
+make install
+vim /etc/ld.so.conf
+    末尾添加 /usr/local/lib  保存
+ldconfig
+
+###########Git更新###########
+wget https://github.com/git/git/archive/v2.22.0.tar.gz
+yum install curl-devel expat-devel gettext-devel openssl-devel zlib-devel gcc perl-ExtUtils-MakeMaker
+yum remove git
+git --version
+tar -zxvf v2.22.0.tar.gz
+cd git-2.22.0
+make prefix=/usr/local/git all
+make prefix=/usr/local/git install
+vim /etc/profile
+ 	   export PATH=$PATH:/usr/local/git/bin
+source  /etc/profile
+git --version
+
+###########Python3 && Python2共存################
+mkdir -p /opt/python3 
+cd /opt/python3/ 
+wget  https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tar.xz 
+tar -xvf Python-3.9.5.tar.xz 
+cd Python-3.9.5/ 
+./configure --prefix=/usr/local/python3 
+make && make install
+unlink /usr/bin/python
+ln -s /usr/local/python3/bin/python3.9 /usr/local/bin/python3
+ln -s /usr/local/python3/bin/pip3.9 /usr/local/bin/pip3
