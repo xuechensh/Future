@@ -119,6 +119,7 @@ source  /etc/profile
 git --version
 
 ###########Python3 && Python2共存################
+yum -y install sqlite*
 mkdir -p /opt/python3 
 cd /opt/python3/ 
 wget  https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tar.xz 
@@ -126,6 +127,8 @@ tar -xvf Python-3.9.5.tar.xz
 cd Python-3.9.5/ 
 ./configure --prefix=/usr/local/python3 
 make && make install
-unlink /usr/bin/python
 ln -s /usr/local/python3/bin/python3.9 /usr/local/bin/python3
 ln -s /usr/local/python3/bin/pip3.9 /usr/local/bin/pip3
+python3 -m pip install --upgrade pip
+pip3 install ipython
+ln -s /usr/local/python3/bin/ipython /usr/local/bin/ipython
