@@ -120,6 +120,7 @@ git --version
 
 ###########Python3 && Python2共存################
 yum -y install sqlite*
+yum install libffi-devel -y
 mkdir -p /opt/python3 
 cd /opt/python3/ 
 wget  https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tar.xz 
@@ -132,3 +133,5 @@ ln -s /usr/local/python3/bin/pip3.9 /usr/local/bin/pip3
 python3 -m pip install --upgrade pip
 pip3 install ipython
 ln -s /usr/local/python3/bin/ipython /usr/local/bin/ipython
+pip3 install jupyter
+ln -s /usr/local/python3/bin/jupyter /usr/local/bin/jupyter
