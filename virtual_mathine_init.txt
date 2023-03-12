@@ -121,6 +121,7 @@ git --version
 ###########Python3 && Python2共存################
 yum -y install sqlite*
 yum install libffi-devel -y
+yum install -y bzip2-devel
 mkdir -p /opt/python3 
 cd /opt/python3/ 
 wget  https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tar.xz 
@@ -135,3 +136,15 @@ pip3 install ipython
 ln -s /usr/local/python3/bin/ipython /usr/local/bin/ipython
 pip3 install jupyter
 ln -s /usr/local/python3/bin/jupyter /usr/local/bin/jupyter
+
+##########Boost install##########################
+mkdir -p /opt/boost
+cd /opt/boost
+wget https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.gz
+tar -xvf boost_1_81_0.tar.bz2
+cd ./boost_1_81_0
+./bootstrap.sh
+./b2 install
+
+##########quantization########################
+pip3 install pandas

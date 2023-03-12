@@ -4,3 +4,10 @@ cc_binary (
         "move_forward.cc",
     ]
 )
+
+cc_binary (
+    name = "boost_learn",
+    srcs = [
+        "boost_learn.cc",
+    ]
+)
