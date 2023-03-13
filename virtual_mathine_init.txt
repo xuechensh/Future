@@ -38,6 +38,7 @@ wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos
  yum clean all
  yum makecache 
  yum install vim
+ yum install net-tools
  
  step6
  yum install unzip
@@ -148,3 +149,5 @@ cd ./boost_1_81_0
 
 ##########quantization########################
 pip3 install pandas
+pip3 install matplotlib
+pip3 install akshare -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com  --upgrade
