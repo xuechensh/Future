@@ -1,0 +1,19 @@
+port {{ sentinel_listen_port }}
+
+dir "/tmp"
+
+pidfile {{ redis_sentinel_home}}/run/sentinel.pid
+logfile {{ redis_sentinel_home}}/logs/sentinel.log
+
+daemonize yes
+
+
+
+sentinel deny-scripts-reconfig yes
+
+sentinel monitor {{ cluster_name }} {{ redis_master_address }} {{ redis_listen_port }} 2
+sentinel down-after-milliseconds {{ cluster_name }} 15000
+
+sentinel failover-timeout {{ cluster_name }} 120000
+
+sentinel auth-pass {{ cluster_name }} {{ redis_requirepass }}

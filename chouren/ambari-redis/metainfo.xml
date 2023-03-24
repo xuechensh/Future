@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>REDIS</name>
+            <displayName>Redis</displayName>
+            <comment>Redis是一个开源（BSD许可）的，内存中的数据结构存储系统，它可以用作数据库、缓存和消息中间件</comment>
+            <version>5.0.4</version>
+            <components>
+                <component>
+                    <name>REDIS_MASTER</name>
+                    <displayName>Redis Master</displayName>
+                    <timelineAppid>redis</timelineAppid>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/redis_master.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                    <customCommands>
+                        <customCommand>
+                            <name>addslave</name>
+                            <background>false</background>
+                            <commandScript>
+                                <script>scripts/addslave.py</script>
+                                <scriptType>PYTHON</scriptType>
+                            </commandScript>
+                        </customCommand>
+                    </customCommands>  
+                </component>
+                <component>
+                    <name>REDIS_SLAVE</name>
+                    <displayName>Redis Slave</displayName>
+                    <timelineAppid>redis</timelineAppid>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/redis_slave.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+                <!-- <component>
+                    <name>REDIS_CLIENT</name>
+                    <displayName>Redis Client</displayName>
+                    <category>CLIENT</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <commandScript>
+                        <script>scripts/redis_client.py</script>
+                        <scriptType>PYTHON</scriptType>
+                    </commandScript>
+                    <configFiles>
+                        <configFile>
+                        <type>xml</type>
+                        <fileName>redis-public.xml</fileName>
+                        <dictionaryName>redis-public</dictionaryName>
+                        </configFile>          
+                    </configFiles>
+                </component> -->
+
+                <component>
+                    <name>REDIS_SENTINEL</name>
+                    <displayName>Redis SENTINEL</displayName>
+                    <timelineAppid>redis</timelineAppid>
+                    <category>SLAVE</category>
+                    <cardinality>0+</cardinality>
+                    <commandScript>
+                        <script>scripts/redis_sentinel.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+                <component>
+                    <name>REDIS_MANAGER</name>
+                    <displayName>Redis MANAGER</displayName>
+                    <timelineAppid>redis</timelineAppid>
+                    <category>SLAVE</category>
+                    <cardinality>1</cardinality>
+                    <commandScript>
+                        <script>scripts/redis_manager.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+            </components>
+            <configuration-dependencies>
+                <config-type>redis</config-type>
+                <config-type>redis-public</config-type>
+                <config-type>redis-cluster</config-type>
+
+            </configuration-dependencies>
+            <osSpecifics>
+                <osSpecific>
+                    <osFamily>any</osFamily>
+                </osSpecific>
+            </osSpecifics>
+            <quickLinksConfigurations>
+                <quickLinksConfiguration>
+                    <fileName>quicklinks.json</fileName>
+                    <default>true</default>
+                </quickLinksConfiguration>
+            </quickLinksConfigurations>
+        </service>
+    </services>
+</metainfo>

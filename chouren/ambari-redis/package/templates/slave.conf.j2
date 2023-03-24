@@ -1,0 +1,21 @@
+daemonize yes
+
+
+pidfile {{redis_home}}/run/redis.pid
+
+loglevel notice
+
+logfile "{{redis_home}}/logs/redis.log"
+
+save 900 1
+save 300 10
+save 60 10000
+protected-mode no
+dbfilename dump.rdb
+requirepass {{redis_requirepass}}
+dir ./
+
+bind {{ local_host_name }} 127.0.0.1
+port {{redis_listen_port}}
+replicaof {{redis_master_address}} {{redis_listen_port}}
+masterauth {{redis_master_auth}}

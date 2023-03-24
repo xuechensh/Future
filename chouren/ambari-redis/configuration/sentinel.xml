@@ -1,0 +1,12 @@
+<configuration>
+    <property>
+        <name>sentinel.listen.port</name>
+        <value>26380</value>
+        <description>connections on the specified port for sentinel</description>
+    </property>
+    <property>
+        <name>sentinel.cluster.name</name>
+        <value>mycluster</value>
+        <description>redis cluster name</description>
+    </property>
+</configuration>

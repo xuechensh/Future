@@ -1,0 +1,63 @@
+{
+    "name": "default",
+    "description": "Default theme for HBASE service",
+    "configuration": {
+      "layouts": [
+        {
+          "name": "default",
+          "tabs": [
+            {
+              "name": "settings",
+              "display-name": "Settings",
+              "layout": {
+                "tab-columns": "3",
+                "tab-rows": "3",
+                "sections": [
+                  {
+                    "name": "section-redis-general",
+                    "display-name": "Server",
+                    "row-index": "0",
+                    "column-index": "0",
+                    "row-span": "1",
+                    "column-span": "2",
+                    "section-columns": "1",
+                    "section-rows": "1",
+                    "subsections": [
+                      {
+                        "name": "subsection-redis-general-col1",
+                        "row-index": "0",
+                        "column-index": "0",
+                        "row-span": "1",
+                        "column-span": "1"
+                      }
+                    ]
+                  }
+
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "placement": {
+        "configuration-layout": "default",
+        "configs": [
+          {
+            "config": "redis-public/daemonize",
+            "subsection-name": "subsection-redis-general-col1"
+          }
+        ]
+      },
+      "widgets": [
+        {
+          "config": "redis-public/daemonize",
+          "widget": {
+            "type": "toggle"
+          }
+        }
+
+      ]
+    }
+  }
+  
+  

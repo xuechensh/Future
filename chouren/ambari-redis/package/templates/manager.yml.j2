@@ -1,0 +1,107 @@
+server:
+  tomcat.uri-encoding: UTF-8
+  compression:
+    enabled: true
+    mime-types:
+      - image/png
+      - image/jpeg
+      - image/jpg
+      - text/html
+      - application/javascript
+      - text/css
+      - application/octet-stream
+      - application/json
+    min-response-size: 1024
+  port: {{ manager_port }}
+
+eureka:
+  server:
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 10000
+    max-threads-for-peer-replication: 0
+  dashboard:
+    path: /eureka-ui
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+
+spring:
+  devtools:
+    restart:
+      enabled: false
+  freemarker:
+    template-loader-path: classpath:/templates/
+    prefer-file-system-access: false
+  application:
+    name: redis-manager
+  resources:
+    static-locations: classpath:/
+  http:
+    encoding:
+      enabled: true
+      charset: UTF-8
+  datasource:
+    database: redis_manager
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://{{ mysql_address }}:{{ mysql_port }}/redis_manager?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
+    username: {{ mysql_user }}
+    password: {{ mysql_pass }}
+    hikari:
+      pool-name: redis-manager-hikaricp
+      minimum-idle: 10
+      idle-timeout: 180000
+      maximum-pool-size: 50
+      auto-commit: true
+      max-lifetime: 600000
+      connection-timeout: 30000
+      connection-test-query: 'SELECT 1'
+mybatis:
+  configuration:
+    mapUnderscoreToCamelCase: true
+
+redis-manager:
+  auth:
+    user-name: admin
+    password: admin
+    avatar-path: /data/avatar/
+    authorization:
+      enabled: false
+      company-name: xxx
+      server: xxx
+      site-key: xxx
+      site-secret: xxx
+  monitor:
+    data-keep-days: 15
+    slow-log-limit: 100
+  installation:
+    current-host:
+    conf-path: /data/conf/
+    machine:
+      package-path: /data/machine/
+    docker:
+      images: redis:4.0.10,redis:4.0.14,redis:5.0.5
+      docker-host: tcp://%s:2375
+    humpback:
+      enabled: false
+      images: redis:4.0.10,redis:4.0.14,redis:5.0.5
+      humpback-host: http://%s:8500/dockerapi/v2/
+  alert:
+    data-keep-days: 15
+  rct:
+    email:
+      smtp:
+      from-name:
+      user-name:
+      password:
+      subject: Redis Analyze Report
+    dev:
+      enable: false
+      rdb:
+        port: 9002
+
+logging:
+  level:
+    com:
+      netflix:
+        eureka: OFF
+        discovery: OFF

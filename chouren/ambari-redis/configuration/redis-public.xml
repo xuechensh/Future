@@ -1,0 +1,217 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration supports_adding_forbidden="true">
+    
+    <!-- <property>
+        <name>daemonize</name>
+        <value>false</value>
+        <description>是否守护进程</description>
+        <value-attributes>
+            <type>value-list</type>
+            <entries>
+                <entry>
+                <value>true</value>
+                <label>Enabled</label>
+                </entry>
+                <entry>
+                <value>false</value>
+                <label>Disabled</label>
+                </entry>
+            </entries>
+            <selection-cardinality>1</selection-cardinality>
+        </value-attributes>
+    </property> -->
+    <property>
+        <name>daemonize</name>
+        <value>true</value>
+        <description>是否守护进程</description>
+        <value-attributes>
+        <type>value-list</type>
+        <entries>
+            <entry>
+            <value>true</value>
+            <label>Enabled</label>
+            </entry>
+            <entry>
+            <value>false</value>
+            <label>Disabled</label>
+            </entry>
+        </entries>
+        <selection-cardinality>1</selection-cardinality>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+
+    <property>
+        <name>timeout</name>
+        <value>0</value>
+        <description>客户端闲置多少秒后关闭连接,默认为0,永不关闭</description>
+    </property>
+
+    
+    <property>
+        <name>maxclients</name>
+        <value>10000</value>
+        <description>客户端最大连接数</description>
+    </property>
+
+    
+    <property>
+        <name>maxmemory</name>
+        <value>0</value>
+        <value-attributes>
+            <type>long</type>
+            <unit>GB</unit>
+            <overridable>false</overridable>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <display-name>Maxmemory</display-name>
+        <description>当前实例最大可用内存</description>
+    </property>
+
+
+    <property>
+        <name>maxmemory-policy</name>
+        <value>volatile-lru</value>
+        <display-name>Maxmemory Policy</display-name>
+        <description>
+        内存不够时,淘汰策略,默认:volatile-lru, 从设置了过期时间的key里，采用lru算法进行淘汰
+        </description>
+    </property>
+
+    <property>
+        <name>rdb-enabled</name>
+        <value>false</value>
+        <description>是否开启rdb持久化</description>
+        <value-attributes>
+            <type>boolean</type>
+         <overridable>false</overridable>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+
+    <property>
+        <name>rdb-config</name>
+        <value>900 1</value>
+        <description>指定的时间间隔内，执行指定次数的写操作，则会将内存中的数据写入到磁盘中</description>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>redis_data_dir</name>
+        <value>none</value>
+        <display-name>Data Directory</display-name>
+        <description>数据目录,默认放在Redis 安装目录下</description>
+    </property>
+
+    <property>
+        <name>appendonly</name>
+        <value>false</value>
+        <value-attributes>
+            <type>boolean</type>
+            <overridable>false</overridable>
+        </value-attributes>
+        <description>是否开启aof持久化</description>
+    </property>
+
+    <property>
+        <name>repl-diskless-sync</name>
+        <value>false</value>
+        <value-attributes>
+            <type>boolean</type>
+            <overridable>false</overridable>
+        </value-attributes>
+        <description>是否开启无盘复制,提示：无盘复制目前是实验性的</description>
+    </property>
+
+
+    <property>
+        <name>databases</name>
+        <value>16</value>
+        <display-name>Databases</display-name>
+        <description>可用的数据库数，默认值为16个,默认数据库为0</description>
+    </property>
+
+
+    <property>
+        <name>repl-backlog-size</name>
+        <value>10</value>
+        <value-attributes>
+            <type>long</type>
+            <unit>MB</unit>
+            <overridable>false</overridable>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>复制缓存区,默认:1mb,配置为:10Mb</description>
+    </property>
+
+     <property>
+        <name>content</name>
+        <display-name>Redis config file template</display-name>
+        <description>This is the template for redis.conf file</description>
+        <value>
+# ======================== Redis Configuration =========================
+# Redis configuration file example.
+# Note that in order to read the configuration file, Redis must be
+
+bind {{ local_host_name }} 
+
+# Accept connections on the specified port, default is 6379 (IANA #815344).
+port {{ redis_listen_port }}
+
+# Close the connection after a client is idle for N seconds (0 to disable)
+timeout {{ timeout }}
+
+################################# GENERAL #####################################
+# By default Redis does not run as a daemon. Use 'yes' if you need it.
+daemonize {{ daemonize }}
+
+# Creating a pid file.
+pidfile {{ redis_home }}/run/redis.pid
+
+# Specify the log file name.
+logfile "{{ redis_log_dir }}/redis.log"
+databases {{ databases }}
+
+################################### CLIENTS ####################################
+# Once the limit is reached Redis will close all the new connections.
+maxclients  {{ maxclients }}
+
+################################## SECURITY ###################################
+requirepass {{ redis_requirepass }}
+
+############################## MEMORY MANAGEMENT ################################
+maxmemory {{ maxmemory }}GB
+# MAXMEMORY POLICY
+maxmemory-policy {{ maxmemoryPolicy }}
+
+################################ SNAPSHOTTING  ################################
+# Save the DB on disk:
+save {{ rdb_config }}
+
+#Data Directory
+dir {{ dir }}
+
+################################# REPLICATION #################################
+repl-backlog-size {{ replBacklogSize }}
+repl-diskless-sync {{ is_replDiskleySnc }}
+
+############################## APPEND ONLY MODE ###############################
+appendonly {{ aof_enabled }}
+
+############################### REDIS CLUSTER  ###############################
+
+{{ cluster_enabled }}
+cluster-config-file  nodes.conf 
+{{ cluster_node_timeout }}
+{{ cluster_require_full_coverage  }}
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+</configuration>

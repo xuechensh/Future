@@ -1,0 +1,9 @@
+{
+  "general_deps" : {
+    "_comment" : "dependencies for Redis",
+    "REDIS_SLAVE-INSTALL": ["REDIS_MASTER-INSTALL"],
+    "REDIS_SLAVE-START": ["REDIS_MASTER-START"]
+
+
+  }
+}

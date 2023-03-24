@@ -1,0 +1,19 @@
+{
+    "REDIS": {
+        "service": [],
+        "REDIS_MASTER": [
+            {
+                "name": "redis_master_status",
+                "label": "Redis Master Status",
+                "description": "Redis master status check progress",
+                "interval": 1,
+                "scope": "ANY",
+                "enable": true,
+                "source": {
+                    "type": "SCRIPT",
+                    "path": "MDP/1.0/services/REDIS/package/alerts/alert_redis_status.py"
+                }
+            }
+        ]
+    }
+}

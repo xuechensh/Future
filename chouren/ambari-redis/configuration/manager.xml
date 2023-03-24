@@ -1,0 +1,32 @@
+<configuration>
+    <property>
+        <name>manager.port</name>
+        <value>5631</value>
+        <description>connections on the specified port for manager</description>
+    </property>
+    <property>
+        <name>mysql.address</name>
+        <value>127.0.0.1</value>
+        <description>mysql address</description>
+    </property>
+    <property>
+        <name>mysql.port</name>
+        <value>5725</value>
+        <description>connections on the specified port for mysql</description>
+    </property>
+    <property>
+        <name>mysql.user</name>
+        <value>admin</value>
+        <description>mysql user</description>
+    </property>
+    <property>
+        <name>mysql.pass</name>
+        <value>admin</value>
+        <description>password for mysql</description>
+    </property>
+    <property>
+        <name>protocol</name>
+        <value>http</value>
+        <description>quicklink protocol</description>
+    </property>
+</configuration>

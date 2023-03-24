@@ -1,0 +1,33 @@
+<configuration>
+    <property>
+        <name>redis.master.address</name>
+        <value>127.0.0.1</value>
+        <description>master ip</description>
+    </property>
+    <property>
+        <name>redis.slave.address</name>
+        <value>127.0.0.1</value>
+        <description>slave ip</description>
+    </property>
+    <property>
+        <name>redis.listen.port</name>
+        <value>6379</value>
+        <description>connections on the specified port</description>
+    </property>
+    <property>
+        <name>redis.requirepass</name>
+        <value>123456</value>
+        <description>redis 密码</description>
+        <property-type>PASSWORD</property-type>
+        <value-attributes>
+            <overridable>false</overridable>
+            <empty-value-valid>true</empty-value-valid>
+            <type>password</type>
+        </value-attributes>
+    </property>
+    <property>
+        <name>protocol</name>
+        <value>http</value>
+        <description>quicklink protocol</description>
+    </property>
+</configuration>

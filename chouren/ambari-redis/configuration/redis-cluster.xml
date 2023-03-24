@@ -1,0 +1,89 @@
+<configuration>
+    <property>
+        <name>cluster-enabled</name>
+        <value>false</value>
+        <description>要启用redis cluster 模式，只需要将‘cluster-enabled’ 设置为true,同时要设置'cluster-master-host-list'， 不能是none.</description>
+        <value-attributes>
+            <type>boolean</type>
+         <overridable>false</overridable>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>cluster-master-host-list</name>
+        <value>none</value>
+        <display-name>Cluster Master Host List</display-name>
+        <description>
+            必须有一个master节点的主机列表,才可以使用集群模式。未启用集群模式时使用"none"。注意格式： 例如192.168.11.110;192.168.11.111;192.168.79.112,多个ip之间用分号隔开。   
+        </description>
+        <depends-on>
+            <property>
+                <type>redis-cluster</type>
+                <name>cluster-enabled</name>
+            </property>
+        </depends-on>
+    </property>
+
+    <property>
+        <name>cluster-slave-host-list</name>
+        <value>none</value>
+        <display-name>Cluster Slave Host List</display-name>
+        <description>
+          在集群模式下，slave节点的主机列表。未启用集群模式时使用"none"。注意格式： 例如192.168.11.110;192.168.11.111;192.168.79.112,多个ip之间用分号隔开。   
+        </description>
+        <depends-on>
+            <property>
+                <type>redis-cluster</type>
+                <name>cluster-enabled</name>
+            </property>
+        </depends-on>
+    </property>
+
+    <property>
+        <name>cluster-node-timeout</name>
+        <value>15000</value>
+        <description>
+           Redis节点宕机被发现的时间，也就是主节点服务宕机从节点顶替上来需要的时间。单位为ms。
+        </description>
+        <value-attributes>
+            <type>int</type>
+            <unit>Milliseconds</unit>
+            <overridable>false</overridable>
+        </value-attributes>
+        <depends-on>
+            <property>
+                <type>redis-cluster</type>
+                <name>cluster-enabled</name>
+            </property>
+        </depends-on>
+    </property>
+    <property>
+        <name>cluster-require-full-coverage</name>
+        <value>false</value>
+        <description>默认值为yes.在集群模式中，如果一个master宕机，整个集群是不可用的。建议设置为no.</description>
+        <value-attributes>
+            <type>boolean</type>
+         <overridable>false</overridable>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+        <depends-on>
+            <property>
+                <type>redis-cluster</type>
+                <name>cluster-enabled</name>
+            </property>
+        </depends-on>
+    </property>
+
+    <property>
+        <name>cluster-migration-barrier</name>
+        <value>1</value>
+        <description>master 将保持连接的最小副本数，以便另一个副本迁移到不再被任何副本覆盖的 master。</description>
+        <depends-on>
+            <property>
+                <type>redis-cluster</type>
+                <name>cluster-enabled</name>
+            </property>
+        </depends-on>
+    </property>
+</configuration>
