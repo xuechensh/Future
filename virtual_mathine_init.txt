@@ -58,13 +58,13 @@ yum install bazel4
 
 ############g++安装#############
 yum install centos-release-scl-rh
-yum install devtoolset-9-build
-yum install devtoolset-9-gdb
-yum install devtoolset-9-gcc devtoolset-9-gcc-c++
-source /opt/rh/devtoolset-9/enable
+yum install devtoolset-11-build
+yum install devtoolset-11-gdb
+yum install devtoolset-11-gcc devtoolset-11-gcc-c++
+source /opt/rh/devtoolset-11/enable
 vim /etc/profile
 +++++
-source /opt/rh/devtoolset-9/enable
+source /opt/rh/devtoolset-11/enable
 +++++
 gcc -v
 g++ -v
