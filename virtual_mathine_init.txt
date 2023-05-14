@@ -69,6 +69,14 @@ source /opt/rh/devtoolset-11/enable
 gcc -v
 g++ -v
 
+###########cmake安装###############
+yum install -y wget
+wget https://cmake.org/files/v3.6/cmake-3.6.2.tar.gz
+tar -zxvf cmake-3.6.2.tar.gz
+rm -f cmake-3.6.2.tar.gz 
+cd cmake-3.6.2
+./bootstrap && make -j4 && sudo make install
+
 ##########protobuf安装#############
 wget https://github.com/protocolbuffers/protobuf/releases/download/v21.9/protobuf-all-21.9.tar.gz
 tar zxvf protobuf-all-21.9.tar.gz
@@ -139,3 +147,24 @@ cd ./boost_1_81_0
 pip3 install pandas
 pip3 install matplotlib
 pip3 install akshare -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com  --upgrade
+
+############libco install##############################
+git clone https://github.com/Tencent/libco.git
+cd libco
+make
+mkdir /usr/include/libco
+cp *.h /usr/include
+cp lib/libcolib.a /usr/local/lib
+cp libcolib.so /usr/local/lib
+编译用法 g++ main.cpp -o app -L -L/usr/local/lib -lcolib
+
+#################libgo install################
+git clone https://github.com/yyzybb537/libgo.git
+cd libgo
+mkdir build
+cd build
+cmake -DBUILD_DYNAMIC=true -DCMAKE_INSTALL_PREFIX=/usr/local/libgo ..
+make -j10
+make install
+cp -r /usr/local/libgo/include/libgo /usr/include/libgo
+cp /usr/local/libgo/lib/* /usr/local/lib/
