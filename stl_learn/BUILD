@@ -50,3 +50,13 @@ cc_binary (
         "-ldl",
     ],
 )
+
+cc_library(
+    name = "redis",
+    srcs = [
+        "redis.cc",
+    ],
+    hdrs = [
+        "redis.h",
+    ],
+)

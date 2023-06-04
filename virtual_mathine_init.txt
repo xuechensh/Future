@@ -168,3 +168,19 @@ make -j10
 make install
 cp -r /usr/local/libgo/include/libgo /usr/include/libgo
 cp /usr/local/libgo/lib/* /usr/local/lib/
+
+###############redis install########################
+wget wget http://download.redis.io/releases/redis-7.0.11.tar.gz
+tar -zxvf redis-7.0.11.tar.gz -C /usr/local && cd /usr/local/redis-7.0.11
+make && make PREFIX=/usr/local/redis-7.0.11 install
+./bin/redis-server& ./redis.conf
+./bin/redis-cli
+    shutdown
+cd /opt && mkdir hiredis && cd hiredis
+wget https://github.com/redis/hiredis/archive/refs/tags/v1.1.0.tar.gz
+tar -zxvf v1.1.0.tar.gz
+cd cd hiredis-1.1.0/
+make && make install
+
+###############tensorflow install####################
+
