@@ -60,3 +60,16 @@ cc_library(
         "redis.h",
     ],
 )
+
+cc_binary (
+    name = "study",
+    srcs = [
+        "study.cc",
+    ],
+    copts = [
+        "-std=c++20",
+    ],
+    linkopts = [
+        "-lpthread",
+    ],
+)
