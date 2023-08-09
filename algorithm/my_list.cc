@@ -65,21 +65,17 @@ class MyList {
   }
 
   void push_back(ListNode* node) {
-    if (!head_) {
-      head_ = node;
-      return;
-    }
+    ListNode head_tmp, *pre = &head_tmp;
+    head_tmp.next = head_;
 
-    ListNode* curr = head_;
-    while (curr->next) {
-      curr = curr->next;
+    while (pre->next) {
+      pre = pre->next;
     }
-    curr->next = node;
+    pre->next = node;
+    head_ = head_tmp.next;
   }
 
   void pop_back() {
-    if (!head_) return;
-
     ListNode head_tmp, *pre = &head_tmp;
     head_tmp.next = head_;
 
@@ -111,12 +107,12 @@ class MyList {
 
   // 2.翻转链表，一共需要三个变量
   void Reverse() {
-    ListNode *pre = nullptr, *curr = head_, *next = nullptr;
-    while (curr) {
-      next = curr->next;
-      curr->next = pre;
-      pre = curr;
-      curr = next;
+    ListNode *pre = nullptr, *next = nullptr;
+    while (head_) {
+      next = head_->next;
+      head_->next = pre;
+      pre = head_;
+      head_ = next;
     }
     head_ = pre;
   }
