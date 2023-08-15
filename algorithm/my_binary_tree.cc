@@ -20,6 +20,27 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& values) {
 }
 
 template <typename T>
+struct Preorder {
+  Preorder(const std::vector<T>& init_data) : data(init_data) {}
+  size_t size() const { return data.size(); }
+  std::vector<T> data;
+};
+
+template <typename T>
+struct Inorder {
+  Inorder(const std::vector<T>& init_data) : data(init_data) {}
+  size_t size() const { return data.size(); }
+  std::vector<T> data;
+};
+
+template <typename T>
+struct Postorder {
+  Postorder(const std::vector<T>& init_data) : data(init_data) {}
+  size_t size() const { return data.size(); }
+  std::vector<T> data;
+};
+
+template <typename T>
 class MyBinaryTree {
  public:
   struct TreeNode {
@@ -70,22 +91,22 @@ class MyBinaryTree {
         postorder_begin + delimiter_index - inorder_begin, postorder_end - 1);
     return curr;
   }
-  MyBinaryTree(const std::vector<T>& inorder, const std::vector<T>& postorder)
+  MyBinaryTree(const Inorder<T>& inorder, const Postorder<T>& postorder)
       : root_(nullptr) {
     if (inorder.size() == 0 || postorder.size() == 0) return;
-    if (std::unordered_set<T>(inorder.begin(), inorder.end()) !=
-        std::unordered_set<T>(postorder.begin(), postorder.end())) {
+    if (std::unordered_set<T>(inorder.data.begin(), inorder.data.end()) !=
+        std::unordered_set<T>(postorder.data.begin(), postorder.data.end())) {
       return;
     }
 
     std::unordered_map<T, int> value_index;
     for (size_t i = 0; i < inorder.size(); ++i) {
-      value_index[inorder[i]] = i;
+      value_index[inorder.data[i]] = i;
     }
     if (value_index.size() != inorder.size()) return;
 
-    root_ = BuildBinaryTreeImpl(value_index, inorder, 0, inorder.size(),
-                                postorder, 0, postorder.size());
+    root_ = BuildBinaryTreeImpl(value_index, inorder.data, 0, inorder.size(),
+                                postorder.data, 0, postorder.size());
   }
 
   static void DisplayImp(TreeNode* node, int level) {
@@ -170,6 +191,47 @@ class MyBinaryTree {
     return ret;
   }
 
+  // 3. 左叶子的和
+  T SumOfLeftLeaves() {
+    if (!root_) return {};
+
+    std::stack<TreeNode*> node_stack;
+    node_stack.push(root_);
+    T ret{};
+    while (!node_stack.empty()) {
+      auto curr = node_stack.top();
+      node_stack.pop();
+
+      if (curr->left && !curr->left->left && !curr->left->right) {
+        ret += curr->left->value;
+      }
+      if (curr->left) node_stack.push(curr->left);
+      if (curr->right) node_stack.push(curr->right);
+    }
+    return ret;
+  }
+
+  // 4. 左下角的值
+  T BottomLeftValue() {
+    if (!root_) return {};
+
+    std::queue<TreeNode*> node_queue;
+    node_queue.push(root_);
+    TreeNode* target = nullptr;
+    while (!node_queue.empty()) {
+      auto level_size = node_queue.size();
+      for (size_t i = 0; i < level_size; ++i) {
+        auto curr = node_queue.front();
+        node_queue.pop();
+
+        if (i == 0) target = curr;
+        if (curr->left) node_queue.push(curr->left);
+        if (curr->right) node_queue.push(curr->right);
+      }
+    }
+    return target->value;
+  }
+
  private:
   TreeNode* root_;
 };
@@ -179,23 +241,44 @@ void TestBuildBinaryTree() {
   std::cout << "TestBuildBinaryTree" << std::endl;
   MyBinaryTree<int> tree1({1, 2, 3, 4, 5});
   tree1.Display();
-  MyBinaryTree<int> tree2({6, 4, 7, 2, 5, 1, 3}, {6, 7, 4, 5, 2, 3, 1});
+  MyBinaryTree<int> tree2(Inorder<int>({6, 4, 7, 2, 5, 1, 3}),
+                          Postorder<int>({6, 7, 4, 5, 2, 3, 1}));
   tree2.Display();
-  MyBinaryTree<int> tree3({6, 4, 7, 2, 5, 1}, {6, 7, 4, 5, 2, 3, 1});
+  MyBinaryTree<int> tree3(Inorder<int>({6, 4, 7, 2, 5, 1}),
+                          Postorder<int>({6, 7, 4, 5, 2, 3, 1}));
   tree3.Display();
 }
 
 // 2. 测试先序、中序、后序、层序、翻转二叉树
 void TestOrder() {
   std::cout << "TestOrder" << std::endl;
-  MyBinaryTree<int> tree1({6, 4, 7, 2, 5, 1, 3}, {6, 7, 4, 5, 2, 3, 1});
+  MyBinaryTree<int> tree1(Inorder<int>({6, 4, 7, 2, 5, 1, 3}),
+                          Postorder<int>({6, 7, 4, 5, 2, 3, 1}));
   std::cout << tree1.Preorder() << std::endl;
   std::cout << tree1.Inorder() << std::endl;
   std::cout << tree1.Postorder() << std::endl;
 }
 
+// 3. 测试左叶子之和
+void TestSumOfLeftLeaves() {
+  std::cout << "TestSumOfLeftLeaves" << std::endl;
+  MyBinaryTree<int> tree1(Inorder<int>({6, 4, 7, 2, 5, 1, 3}),
+                          Postorder<int>({6, 7, 4, 5, 2, 3, 1}));
+  std::cout << tree1.SumOfLeftLeaves() << std::endl;
+}
+
+// 4. 测试左下角的值
+void TestBottomLeftValue() {
+  std::cout << "TestBottomLeftValue" << std::endl;
+  MyBinaryTree<int> tree1(Inorder<int>({6, 4, 7, 2, 5, 1, 3}),
+                          Postorder<int>({6, 7, 4, 5, 2, 3, 1}));
+  std::cout << tree1.BottomLeftValue() << std::endl;
+}
+
 int main() {
   TestBuildBinaryTree();
   TestOrder();
+  TestSumOfLeftLeaves();
+  TestBottomLeftValue();
   return 0;
 }
