@@ -1,3 +1,4 @@
+#include <deque>
 #include <iostream>
 #include <queue>
 #include <stack>
@@ -41,26 +42,29 @@ struct Postorder {
 };
 
 template <typename T>
+struct TreeNode {
+  explicit TreeNode(const T& v)
+      : value(v), left(nullptr), right(nullptr), parent(nullptr) {}
+  T value;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode* parent;
+};
+
+template <typename T>
 class MyBinaryTree {
  public:
-  struct TreeNode {
-    TreeNode(const T& v)
-        : value(v), left(nullptr), right(nullptr), parent(nullptr) {}
-    T value;
-    TreeNode* left;
-    TreeNode* right;
-    TreeNode* parent;
-  };
+  MyBinaryTree() : root_(nullptr) {}
 
   // 1. 构建二叉树 && 展示二叉树
   explicit MyBinaryTree(const std::vector<T>& values) : root_(nullptr) {
     if (values.empty()) return;
 
-    root_ = new TreeNode(values[0]);
-    std::queue<TreeNode*> node_queue;
+    root_ = new TreeNode<T>(values[0]);
+    std::queue<TreeNode<T>*> node_queue;
     node_queue.push(root_);
     for (size_t i = 1; i < values.size(); ++i) {
-      TreeNode* curr = new TreeNode(values[i]);
+      TreeNode<T>* curr = new TreeNode<T>(values[i]);
       if (i % 2 == 1) {
         node_queue.front()->left = curr;
       } else {
@@ -72,14 +76,13 @@ class MyBinaryTree {
   }
 
   // 中序后续构建二叉树
-  TreeNode* BuildBinaryTreeImpl(const std::unordered_map<T, int>& value_index,
-                                const std::vector<T>& inorder,
-                                int inorder_begin, int inorder_end,
-                                const std::vector<T>& postorder,
-                                int postorder_begin, int postorder_end) {
+  TreeNode<T>* BuildBinaryTreeImpl(
+      const std::unordered_map<T, int>& value_index,
+      const std::vector<T>& inorder, int inorder_begin, int inorder_end,
+      const std::vector<T>& postorder, int postorder_begin, int postorder_end) {
     if (postorder_begin == postorder_end) return nullptr;
 
-    TreeNode* curr = new TreeNode(postorder[postorder_end - 1]);
+    TreeNode<T>* curr = new TreeNode<T>(postorder[postorder_end - 1]);
     if (postorder_end - postorder_begin == 1) return curr;
 
     int delimiter_index = value_index.at(postorder[postorder_end - 1]);
@@ -109,7 +112,27 @@ class MyBinaryTree {
                                 postorder.data, 0, postorder.size());
   }
 
-  static void DisplayImp(TreeNode* node, int level) {
+  ~MyBinaryTree() {
+    if (!root_) return;
+
+    std::stack<TreeNode<T>*> node_stack;
+    node_stack.push(root_);
+    TreeNode<T>* curr = nullptr;
+    while (!node_stack.empty()) {
+      curr = node_stack.top();
+      node_stack.pop();
+
+      if (curr->right) node_stack.push(curr->right);
+      if (curr->left) node_stack.push(curr->left);
+
+      curr->right = nullptr;
+      curr->left = nullptr;
+      delete curr;
+    }
+    root_ = nullptr;
+  }
+
+  static void DisplayImp(TreeNode<T>* node, int level) {
     if (!node) return;
 
     DisplayImp(node->right, level + 1);
@@ -133,7 +156,7 @@ class MyBinaryTree {
   std::vector<T> Preorder() const {
     if (!root_) return {};
 
-    std::stack<TreeNode*> node_stack;
+    std::stack<TreeNode<T>*> node_stack;
     node_stack.push(root_);
 
     std::vector<T> ret;
@@ -149,8 +172,8 @@ class MyBinaryTree {
   }
 
   std::vector<T> Inorder() const {
-    std::stack<TreeNode*> node_stack;
-    TreeNode* curr = root_;
+    std::stack<TreeNode<T>*> node_stack;
+    TreeNode<T>* curr = root_;
 
     std::vector<T> ret;
     while (!node_stack.empty() || curr) {
@@ -168,8 +191,8 @@ class MyBinaryTree {
   }
 
   std::vector<T> Postorder() const {
-    std::stack<TreeNode*> node_stack;
-    TreeNode *curr = root_, *visit = nullptr;
+    std::stack<TreeNode<T>*> node_stack;
+    TreeNode<T>*curr = root_, *visit = nullptr;
 
     std::vector<T> ret;
     while (!node_stack.empty() || curr) {
@@ -195,7 +218,7 @@ class MyBinaryTree {
   T SumOfLeftLeaves() {
     if (!root_) return {};
 
-    std::stack<TreeNode*> node_stack;
+    std::stack<TreeNode<T>*> node_stack;
     node_stack.push(root_);
     T ret{};
     while (!node_stack.empty()) {
@@ -215,9 +238,9 @@ class MyBinaryTree {
   T BottomLeftValue() {
     if (!root_) return {};
 
-    std::queue<TreeNode*> node_queue;
+    std::queue<TreeNode<T>*> node_queue;
     node_queue.push(root_);
-    TreeNode* target = nullptr;
+    TreeNode<T>* target = nullptr;
     while (!node_queue.empty()) {
       auto level_size = node_queue.size();
       for (size_t i = 0; i < level_size; ++i) {
@@ -232,8 +255,65 @@ class MyBinaryTree {
     return target->value;
   }
 
+  // 5.  从根节点到叶子节点的路径和等于target
+  std::vector<std::vector<T>> PathSum(const T& target) {
+    std::vector<std::vector<T>> ret;
+
+    TreeNode<T>*curr = root_, *pre = nullptr;
+    std::deque<TreeNode<T>*> node_deque;
+    T value_tmp{};
+    while (curr || !node_deque.empty()) {
+      while (curr) {
+        value_tmp += curr->value;
+        node_deque.push_back(curr);
+        curr = curr->left;
+      }
+      curr = node_deque.back();
+      if (!curr->left && !curr->right && value_tmp == target) {
+        std::vector<T> tmp;
+        for (const auto& iter : node_deque) {
+          tmp.emplace_back(iter->value);
+        }
+        ret.emplace_back(tmp);
+      }
+      if (!curr->right || curr->right == pre) {
+        value_tmp -= curr->value;
+        node_deque.pop_back();
+        pre = curr;
+        curr = nullptr;
+      } else {
+        curr = curr->right;
+      }
+    }
+    return ret;
+  }
+
+ protected:
+  TreeNode<T>* root_;
+};
+
+// 6. 最大二叉树，给定一个数组，用最大值分左右两边，构建二叉树。
+template <typename T>
+class MaxBinaryTree : public MyBinaryTree<T> {
+ public:
+  explicit MaxBinaryTree(const std::vector<T>& nums) {
+    this->root_ = BuildImpl(nums, 0, nums.size());
+  }
+
  private:
-  TreeNode* root_;
+  TreeNode<T>* BuildImpl(const std::vector<T>& nums, size_t left,
+                         size_t right) {
+    if (left >= right) return nullptr;
+
+    size_t max_value_index = left;
+    for (size_t i = left; i < right; ++i) {
+      if (nums[i] > nums[max_value_index]) max_value_index = i;
+    }
+    TreeNode<T>* node = new TreeNode<T>(nums[max_value_index]);
+    node->left = BuildImpl(nums, left, max_value_index);
+    node->right = BuildImpl(nums, max_value_index + 1, right);
+    return node;
+  }
 };
 
 // 1. 测试构建二叉树
@@ -275,10 +355,30 @@ void TestBottomLeftValue() {
   std::cout << tree1.BottomLeftValue() << std::endl;
 }
 
+// 5. 测试路径和
+void TestPathSum() {
+  std::cout << "TestPathSum" << std::endl;
+  MyBinaryTree<int> tree1(Inorder<int>({7, 11, 2, 4, 5, 13, 8, 6, 3, 1}),
+                          Postorder<int>({7, 2, 11, 4, 13, 6, 1, 3, 8, 5}));
+  tree1.Display();
+  for (const auto& e : tree1.PathSum(22)) {
+    std::cout << e << std::endl;
+  }
+}
+
+// 6. 测试最大二叉树
+void TestMaxBinaryTree() {
+  std::cout << "TestMaxBinaryTree" << std::endl;
+  MaxBinaryTree<int> tree1({3, 2, 1, 6, 0, 5});
+  tree1.Display();
+}
+
 int main() {
   TestBuildBinaryTree();
   TestOrder();
   TestSumOfLeftLeaves();
   TestBottomLeftValue();
+  TestPathSum();
+  TestMaxBinaryTree();
   return 0;
 }
