@@ -112,7 +112,7 @@ class MyBinaryTree {
                                 postorder.data, 0, postorder.size());
   }
 
-  ~MyBinaryTree() {
+  void Clear() {
     if (!root_) return;
 
     std::stack<TreeNode<T>*> node_stack;
@@ -130,6 +130,16 @@ class MyBinaryTree {
       delete curr;
     }
     root_ = nullptr;
+  }
+
+  ~MyBinaryTree() { Clear(); }
+
+  static TreeNode<T>* DeepCopy(TreeNode<T>* node) {
+    if (!node) return nullptr;
+    auto temp = new TreeNode<T>(node->value);
+    temp->left = DeepCopy(node->left);
+    temp->right = DeepCopy(node->right);
+    return temp;
   }
 
   static void DisplayImp(TreeNode<T>* node, int level) {
@@ -288,6 +298,41 @@ class MyBinaryTree {
     return ret;
   }
 
+  // 7. 合并二叉树
+  void Merge(const MyBinaryTree& rhf) {
+    if (!root_) {
+      root_ = DeepCopy(rhf.root_);
+      return;
+    }
+    if (!rhf.root_) return;
+
+    std::queue<TreeNode<T>*> node_queue;
+    node_queue.push(root_);
+    node_queue.push(rhf.root_);
+    while (!node_queue.empty()) {
+      auto node1 = node_queue.front();
+      node_queue.pop();
+      auto node2 = node_queue.front();
+      node_queue.pop();
+      node1->value += node2->value;
+
+      if (node1->left && node2->left) {
+        node_queue.push(node1->left);
+        node_queue.push(node2->left);
+      }
+      if (node1->right && node2->right) {
+        node_queue.push(node1->right);
+        node_queue.push(node2->right);
+      }
+      if (!node1->left && node2->left) {
+        node1->left = DeepCopy(node2->left);
+      }
+      if (!node1->right && node2->right) {
+        node1->right = DeepCopy(node2->right);
+      }
+    }
+  }
+
  protected:
   TreeNode<T>* root_;
 };
@@ -373,6 +418,18 @@ void TestMaxBinaryTree() {
   tree1.Display();
 }
 
+// 7. 测试合并二叉树
+void TestMerge() {
+  std::cout << "TestMerge" << std::endl;
+  MyBinaryTree<int> tree1(Inorder<int>({7, 11, 2, 4, 5, 13, 8, 6, 3, 1}),
+                          Postorder<int>({7, 2, 11, 4, 13, 6, 1, 3, 8, 5}));
+  tree1.Display();
+  MaxBinaryTree<int> tree2({3, 2, 1, 6, 0, 5});
+  tree2.Display();
+  tree1.Merge(tree2);
+  tree1.Display();
+}
+
 int main() {
   TestBuildBinaryTree();
   TestOrder();
@@ -380,5 +437,6 @@ int main() {
   TestBottomLeftValue();
   TestPathSum();
   TestMaxBinaryTree();
+  TestMerge();
   return 0;
 }
