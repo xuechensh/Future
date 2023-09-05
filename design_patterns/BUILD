@@ -11,3 +11,13 @@ cc_binary (
         "decorator.cc",
     ]
 )
+
+cc_binary (
+    name = "strategy_pattern",
+    srcs = [
+        "strategy_pattern.cc",
+    ],
+    copts = [
+        "-std=c++20",
+    ],
+)
