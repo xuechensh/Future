@@ -1,10 +1,10 @@
 #########创建虚拟机#####################
-开启双网卡，第一个仅主机模式，第二个Nat模式
+开启双网卡，第一个Nat模式，第二个仅主机模式
 注意：装系统的时候要把网络开关打开，要不系统启动后无法链接外网
 注意：仅主机模式本地主机可以连虚拟机，但虚拟机无法直接ping通主机，但无所谓，ssh能登进去就行。
 
 #########设置网卡信息##################
-vi /etc/sysconfig/network-scripts/ifcfg-enp0s3
+vi /etc/sysconfig/network-scripts/ifcfg-enp0s8
 +++++
 TYPE=Ethernet
 BOOTPROTO=static
