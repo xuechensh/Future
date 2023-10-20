@@ -159,5 +159,9 @@ int main() {
   f4(*ptr);
   f5(ptr);
 
+  // 测试const对象是可以move的
+  const int cc = 0;
+  f2(std::move(cc));
+
   return 0;
 }

@@ -73,3 +73,13 @@ cc_binary (
         "-lpthread",
     ],
 )
+
+cc_binary (
+    name = "template_auto_learn",
+    srcs = [
+        "template_auto_learn.cc",
+    ],
+    copts = [
+        "-std=c++20",
+    ],
+)
