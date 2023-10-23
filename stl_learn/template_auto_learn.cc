@@ -5,59 +5,112 @@
 // T&&这种格式是万能引用的格式，只有这种格式，其他任意格式都不行
 // 比如const T&&、vector<T>&&都不行、const T&&是右值引用
 template <typename T>
-void my_print(T&& a) {
-  std::cout << a << std::endl;
+void my_print(T&& t) {
+  std::cout << std::boolalpha << t << std::endl;
 }
 
 template <typename T, typename... Args>
-void my_print(T&& a, Args&&... args) {
-  std::cout << a << ',';
+void my_print(T&& t, Args&&... args) {
+  std::cout << std::boolalpha << t << ',';
   my_print(std::forward<Args>(args)...);
 }
 
-// 获取数组大小
+void test01() { my_print(1, 2, "abcd", false); }
+
 template <typename T, size_t N>
-constexpr size_t arrySize(T (&)[N]) noexcept {
+constexpr size_t arry_size(T (&)[N]) noexcept {
   return N;
 }
 
-// 以下所有情景，在函数参数类型里没有限定const T的时候
-// T是否携带const受形参影响
+void test02() {
+  const int arr[3] = {1, 2, 3};
+  my_print(arry_size(arr));
+  my_print(arry_size("abcd"));
+}
+
+int a = 1;
+const int b = 2;
+int& c = a;
+const int& d = b;
+char e[] = "abc";
+const char f[] = "abc";
+
+void test_func(int a, int b) { my_print(a, b); }
+void (&test_func_ref)(int, int) = test_func;
+void (*test_func_ptr)(int, int) = test_func;
 
 // 情景1：ParamType是一个指针或引用，但不是通用引用
 // 这个相当于T可以携带const限定，也可以不带
 template <typename T>
-void f0(T& param) {
+void func01(T& t) {
   if (std::is_same<T, int>::value && std::is_same<T&, int&>::value) {
     my_print("int -> int&");
   } else if (std::is_same<T, const int>::value &&
              std::is_same<T&, const int&>::value) {
     my_print("const int -> const int&");
-  } else if (std::is_same<T, const char[5]>::value &&
-             std::is_same<T&, const char(&)[5]>::value) {
-    my_print("const char[5] -> const char&[5]");
+  } else if (std::is_same<T, char[4]>::value &&
+             std::is_same<T&, char(&)[4]>::value) {
+    my_print("char[4] -> char(&)[4]");
+  } else if (std::is_same<T, const char[4]>::value &&
+             std::is_same<T&, const char(&)[4]>::value) {
+    my_print("const char[4] -> const char(&)[4]");
+  } else if (std::is_same<T, void(int, int)>::value &&
+             std::is_same<T&, void (&)(int, int)>::value) {
+    // 函数别名默认是const的，不允许修改，但函数指针可以修改
+    my_print("void(int, int) -> void (&)(int, int)");
   } else {
-    my_print("other T");
+    my_print("not find T");
   }
 }
 
-// 规定以const的方式使用param
 template <typename T>
-void f1(const T& param) {
+void func02(const T& t) {
   if (std::is_same<T, int>::value &&
       std::is_same<const T&, const int&>::value) {
     my_print("int -> const int&");
-  } else if (std::is_same<T, char[5]>::value &&
-             std::is_same<const T&, const char(&)[5]>::value) {
-    my_print("char[5] -> const char&[5]");
+  } else if (std::is_same<T, char[4]>::value &&
+             std::is_same<const T&, const char(&)[4]>::value) {
+    my_print("char[4] -> const char(&)[4]");
+  } else if (std::is_same<T, void(int, int)>::value &&
+             std::is_same<T&, void (&)(int, int)>::value) {
+    // 函数别名默认是const的，不允许修改，但函数指针可以修改
+    my_print("void(int, int) -> void (&)(int, int)");
   } else {
-    my_print("other T");
+    my_print("not find T");
   }
 }
 
-// 情景2：ParamType是一个通用引用
+void test03() {
+  my_print("func01 <<<<<<<<<<<<<<<");
+  func01(a);
+  func01(b);
+  func01(c);
+  func01(d);
+  func01(e);
+  func01(f);
+  // func01(1); // 编译失败，左值引用不能引用右值
+  func01("abc");
+  func01(test_func);
+  func01(test_func_ref);
+
+  my_print("func02 <<<<<<<<<<<<<<<");
+  func02(a);
+  func02(b);
+  func02(c);
+  func02(d);
+  func02(e);
+  func02(f);
+  func02(1);  // const左值引用可以引用右值
+  func02("abc");
+  func02(test_func);
+  func02(test_func_ref);
+}
+
+// 情景2：ParamType是一个通用引用（万能引用）
+// 一开始是什么类型，ParamType还是什么类型，只不过如果是右值引用的话，
+// T是原始类型，不是左值引用类型
 template <typename T>
-void f2(T&& param) {
+void func03(T&&) {
   if (std::is_same<T, int&>::value && std::is_same<T&&, int&>::value) {
     my_print("int& -> int&");
   } else if (std::is_same<T, const int&>::value &&
@@ -68,100 +121,133 @@ void f2(T&& param) {
   } else if (std::is_same<T, const int>::value &&
              std::is_same<T&&, const int&&>::value) {
     my_print("const int -> const int&&");
-  } else if (std::is_same<T, const char(&)[5]>::value &&
-             std::is_same<T&&, const char(&)[5]>::value) {
-    my_print("const char&[5] -> const char&[5]");
+  } else if (std::is_same<T, char(&)[4]>::value &&
+             std::is_same<T&&, char(&)[4]>::value) {
+    my_print("char(&)[4] -> char(&)[4]");
+  } else if (std::is_same<T, const char(&)[4]>::value &&
+             std::is_same<T&&, const char(&)[4]>::value) {
+    my_print("const char(&)[4] -> const char(&)[4]");
+  } else if (std::is_same<T, char[4]>::value &&
+             std::is_same<T&&, char(&&)[4]>::value) {
+    my_print("char[4] -> char(&&)[4]");
+  } else if (std::is_same<T, const char[4]>::value &&
+             std::is_same<T&&, const char(&&)[4]>::value) {
+    my_print("const char[4] -> const char(&&)[4]");
+  } else if (std::is_same<T, void (&)(int, int)>::value &&
+             std::is_same<T&, void (&)(int, int)>::value) {
+    // 函数别名默认是const的，不允许修改，但函数指针可以修改
+    my_print("void (&)(int, int) -> void (&)(int, int)");
   } else {
-    my_print("other T");
+    my_print("not find T");
   }
+}
+
+void test04() {
+  my_print("func03 <<<<<<<<<<<<<<<");
+  func03(a);
+  func03(b);
+  func03(std::move(b));
+  func03(c);
+  func03(d);
+  func03(e);
+  func03(std::move(e));
+  func03(f);
+  func03(std::move(f));
+  func03(1);  // const左值引用可以引用右值
+  func03("abc");
+  func03(test_func);
+  func03(test_func_ref);
 }
 
 // 情景3：ParamType既不是指针也不是引用
-// 会拷贝一个完整对象，在引用到数组的时候会退化成指针
-// T之前可以加const限定，也可以不加const限定，这只表示param是否是const
+// 会拷贝一个完整对象，在引用到数组的时候会退化成指针，在引用函数对象时退化成函数指针
+// T之前可以加const限定，也可以不加const限定，这只表示param是否是const，而不是类型是否是const
 // 不影响T的类型推导，但数组退化成指针，如果数组是const，T推导为const指针
 template <typename T>
-void f3(T param) {
+void func04(T t) {
   if (std::is_same<T, int>::value) {
-    my_print("int -> int");
+    my_print("int");
+  } else if (std::is_same<T, char*>::value) {
+    my_print("char*");
   } else if (std::is_same<T, const char*>::value) {
-    my_print("const char* -> const char*");
+    my_print("const char*");
+  } else if (std::is_same<T, void (*)(int, int)>::value) {
+    my_print("void(*)(int, int)");
   } else {
-    my_print("other T");
-  }
-}
-
-// 情景4：函数实参，函数对象的引用默认是const的，加了const限定，不影响类型推导
-void testFunc(int a, int b) { my_print("testFunc"); }
-
-template <typename T>
-void f4(T& func) {
-  if (std::is_same<T, void(int, int)>::value &&
-      std::is_same<T&, void (&)(int, int)>::value) {
-    my_print("void(int, int) -> void(&)(int, int)");
-  } else {
-    my_print("other T");
+    my_print("not find T");
   }
 }
 
 template <typename T>
-void f5(T func) {
-  if (std::is_same<T, void (*)(int, int)>::value) {
-    my_print("void(*)(int, int) -> void(*)(int, int)");
+void func05(const T t) {
+  if (std::is_same<const T, const int>::value) {
+    my_print("int");
+  } else if (std::is_same<const T, char* const>::value) {
+    my_print("char* const");
+  } else if (std::is_same<const T, const char* const>::value) {
+    my_print("const char* const");
+  } else if (std::is_same<const T, void (*const)(int, int)>::value) {
+    my_print("void (*const)(int, int)");
   } else {
-    my_print("other T");
+    my_print("not find T");
   }
+}
+
+void test05() {
+  my_print("func04 <<<<<<<<<<<<<<<");
+  func04(a);
+  func04(b);
+  func04(std::move(b));
+  func04(c);
+  func04(d);
+  func04(e);
+  func04(std::move(e));
+  func04(f);
+  func04(std::move(f));
+  func04(1);
+  func04("abc");
+  func04(test_func);
+  func04(test_func_ref);
+
+  my_print("func05 <<<<<<<<<<<<<<<");
+  func05(a);
+  func05(b);
+  func05(std::move(b));
+  func05(c);
+  func05(d);
+  func05(e);
+  func05(std::move(e));
+  func05(f);
+  func05(std::move(f));
+  func05(1);
+  func05("abc");
+  func05(test_func);
+  func05(test_func_ref);
+}
+
+// 附加4：cost对象move后资源情况
+// const右值引用，资源是掠夺不了的！！！！
+class A {
+ public:
+  A() : a_(1) {}
+  A(A&& rhf) : a_(rhf.a_) { rhf.a_ = 0; }
+  A(const A&& rhf) : a_(rhf.a_) {}
+
+  int a_;
+};
+
+void test06() {
+  const A a;
+  A b(std::move(a));
+  my_print(a.a_, b.a_);
 }
 
 int main() {
-  // 情景1：ParamType是一个指针或引用，但不是通用引用
-  int a = 1;
-  const int b = a;
-  const int& c = a;
-  const char abcd[] = "abcd";
-  f0(a);
-  f0(b);
-  f0(c);
-  f0(abcd);
-  // f0(1); // 编译不通过，不能将左值引用绑定右值
-  f1(a);
-  f1(b);
-  f1(c);
-  f1(1);  // 编译通过，可以将const左值引用绑定右值
-  f1(abcd);
-
-  // 情景2：ParamType是一个通用引用
-  my_print("<<<<<<<<<<<<<<<");
-  f2(1);
-  f2(a);
-  f2(b);
-  f2(c);
-  f2(std::move(a));
-  f2(abcd);
-
-  // 情景3：ParamType既不是指针也不是引用
-  my_print("<<<<<<<<<<<<<<<<");
-  f3(1);
-  f3(a);
-  f3(b);
-  f3(c);
-  f3(abcd);
-
-  // 测试获取数组长度
-  my_print("<<<<<<<<<<<<<<<<");
-  my_print(arrySize(abcd));
-
-  // 情景4：函数实参，不考虑在函数参数加const，没这么用的
-  my_print("<<<<<<<<<<<<<<<<");
-  f4(testFunc);
-  f5(testFunc);
-  void (*const ptr)(int, int) = testFunc;
-  f4(*ptr);
-  f5(ptr);
-
-  // 测试const对象是可以move的
-  const int cc = 0;
-  f2(std::move(cc));
-
+  test01();
+  test02();
+  test03();
+  test04();
+  test05();
+  test06();
   return 0;
 }
