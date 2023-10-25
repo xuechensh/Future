@@ -25,6 +25,7 @@ cc_binary (
     ],
 )
 
+'''
 cc_binary (
     name = "libco_run",
     srcs = [
@@ -36,7 +37,8 @@ cc_binary (
         "-lcolib",
         "-ldl",
     ],
-)
+) 
+'''
 
 cc_binary (
     name = "libgo_run",
@@ -66,9 +68,6 @@ cc_binary (
     srcs = [
         "study.cc",
     ],
-    copts = [
-        "-std=c++20",
-    ],
     linkopts = [
         "-lpthread",
     ],
@@ -78,8 +77,5 @@ cc_binary (
     name = "template_auto_learn",
     srcs = [
         "template_auto_learn.cc",
-    ],
-    copts = [
-        "-std=c++20",
     ],
 )
