@@ -1,0 +1,52 @@
+# docker install
+yum remove docker \
+           docker-client \
+           docker-client-latest \
+           docker-common \
+           docker-latest \
+           docker-latest-logrotate \
+           docker-logrotate \
+           docker-engine
+yum install -y yum-utils \
+  device-mapper-persistent-data \
+  lvm2
+yum-config-manager \
+    --add-repo \
+    https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+yum update -y && yum install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+systemctl start docker
+systemctl enable docker
+
+# mysql docker install
+docker search mysql
+docker pull mysql:latest
+docker images
+docker run --restart=always -itd --name mysql-test -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root mysql
+docker ps
+docker exec -it mysql-test bash
+mysql -h localhost -u root -p
+
+# redis docekr install
+docker search redis
+docker pull redis/redis-stack-server:latest
+docker images
+docker run --restart=always -itd --name redis-test -p 6379:6379 redis/redis-stack-server
+docker ps
+docker exec -it redis-test bash
+redis-cli
+
+# mongodb docker install
+docker search mongo
+docker pull mongo:latest
+docker images
+docker run --restart=always -itd --name mongo-test -p 27017:27017 mongo
+docker ps
+docker exec -it mongo-test bash
+
+# elasticsearch docker install
+docker search elasticsearch
+docker pull elasticsearch:latest
+docker images
+docker run --restart=always -itd --name es-test -p 9200:9200 -p 9300:9300 elasticsearch
+docker ps
+docker exec -it es-test bash

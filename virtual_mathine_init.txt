@@ -57,10 +57,10 @@ enabled_metadata=1
 yum install bazel4
 
 ############g++安装#############
-yum install centos-release-scl-rh
-yum install devtoolset-11-build
-yum install devtoolset-11-gdb
-yum install devtoolset-11-gcc devtoolset-11-gcc-c++
+yum install -y centos-release-scl-rh
+yum install -y devtoolset-11-build
+yum install -y devtoolset-11-gdb
+yum install -y devtoolset-11-gcc devtoolset-11-gcc-c++
 source /opt/rh/devtoolset-11/enable
 vim /etc/profile
 +++++
