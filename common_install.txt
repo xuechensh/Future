@@ -35,6 +35,13 @@ docker ps
 docker exec -it redis-test bash
 redis-cli
 
+# hiredis install
+cd /opt && mkdir hiredis && cd hiredis
+wget https://github.com/redis/hiredis/archive/refs/tags/v1.1.0.tar.gz
+tar -zxvf v1.1.0.tar.gz
+cd cd hiredis-1.1.0/
+make && make install
+
 # mongodb docker install
 docker search mongo
 docker pull mongo:latest
@@ -46,6 +53,7 @@ docker exec -it mongo-test bash
 # elasticsearch docker install
 docker search elasticsearch
 docker pull elasticsearch:latest
+# docker pull elasticsearch:8.4.3 # 有可能latest找不到，用这个
 docker images
 docker run --restart=always -itd --name es-test -p 9200:9200 -p 9300:9300 elasticsearch
 docker ps
