@@ -88,6 +88,7 @@ vi kibana.yml
 --elasticsearch.hosts: [ "http://172.17.0.4:9200" ]
 // kibana版本号要和elasticsearch相同，且kibana.yml es host地址要设置对
 docker inspect es-test | grep "IPAddress"
+docker restart kibana-test
 测试数据下载
 https://github.com/elastic/elasticsearch/blob/v6.8.18/docs/src/test/resources/accounts.json
 curl -H "Content-Type: application/json" -XPOST "localhost:9400/bank/_bulk?pretty&refresh" --data-binary "@/home/heshi/Downloads/accounts.json"
