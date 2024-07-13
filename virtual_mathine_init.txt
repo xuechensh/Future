@@ -19,7 +19,7 @@ DNS1=8.8.8.8
 
 #######网络 && 安全################
 systemctl stop firewalld
-systemctl disable firewalld.service
+systemctl disable firewalld
 vi /etc/selinux/config 
 +++++
 SELINUX=disabled
@@ -36,7 +36,9 @@ yum clean all
 yum makecache 
 
 ########安装相关软件#######
+yum update
 yum install -y vim net-tools unzip wget
+yum groupinstall "Development Tools"
 
 ############bazel安装###########
 vim /etc/yum.repos.d/vbatts-bazel-epel-7.repo
@@ -56,6 +58,19 @@ yum install bazel4
 
 ############g++安装#############
 yum install -y centos-release-scl-rh
+出错时可以尝试如下：
+cd /etc/yum.repos.d/
+mv CentOS-SCLo-scl.repo CentOS-SCLo-scl.repo.bak
+mv CentOS-SCLo-scl-rh.repo CentOS-SCLo-scl-rh.repo.bak、
+vim CentOS-SCLo-rh.repo
+[centos-sclo-rh]
+name=CentOS-7 - SCLo rh
+baseurl=https://mirrors.aliyun.com/centos/7/sclo/x86_64/rh/
+gpgcheck=1
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-SCLo
+------------------------------------
+yum install -y devtoolset-11-libstdc++-devel
 yum install -y devtoolset-11-build
 yum install -y devtoolset-11-gdb
 yum install -y devtoolset-11-gcc devtoolset-11-gcc-c++
@@ -99,12 +114,12 @@ vim /etc/ld.so.conf
 ldconfig
 
 ###########Git更新###########
-wget https://github.com/git/git/archive/v2.22.0.tar.gz
+wget https://github.com/git/git/archive/v2.43.0.tar.gz
 yum install curl-devel expat-devel gettext-devel openssl-devel zlib-devel gcc perl-ExtUtils-MakeMaker
 yum remove git
 git --version
-tar -zxvf v2.22.0.tar.gz
-cd git-2.22.0
+tar -zxvf v2.43.0.tar.gz
+cd git-2.43.0
 make prefix=/usr/local/git all
 make prefix=/usr/local/git install
 vim /etc/profile
@@ -187,3 +202,43 @@ tar -zxvf googletest-1.14.0.tar.gz
 cd googletest-1.14.0
 cmake CMakeLists.txt
 make && make install
+
+#################g++升级11以上######################
+还未验证，等需要再说
+wget https://ftp.gnu.org/gnu/gcc/gcc-14.1.0/gcc-14.1.0.tar.gz
+tar -xzvf gcc-14.1.0.tar.gz
+cd gcc-14.1.0
+./configure --disable-multilib --enable-languages=c,c++
+make -j 4 && make install
+
+#################libstdc++3.4.25##################
+wget http://ftp.de.debian.org/debian/pool/main/g/gcc-8/libstdc++6_8.3.0-6_amd64.deb
+ar -x libstdc++6_8.3.0-6_amd64.deb
+tar -xf data.tar.xz
+cd usr/lib/x86_64-linux-gnu
+cp libstdc++.so.6.0.25 /usr/lib64/libstdc++.so.6.0.25
+ln -sf /usr/lib64/libstdc++.so.6.0.25 /usr/lib64/libstdc++.so.6
+strings /usr/lib64/libstdc++.so.6 | grep GLIBCXX
+
+##################make##############################
+make --version
+wget http://ftp.gnu.org/pub/gnu/make/make-4.3.tar.gz
+tar -xzvf make-4.3.tar.gz
+cd make-4.3/
+mkdir build&&cd build
+../configure --prefix=/usr/
+bash build.sh
+make install
+make --version
+
+###################glibc###########################
+gcc需要降级到8，用完别忘再升级回来
+strings /lib64/libc.so.6 | grep -E "^GLIBC" | sort -V -r | uniq
+wget https://ftp.gnu.org/gnu/glibc/glibc-2.31.tar.gz
+tar -xzvf glibc-2.31.tar.gz
+cd glibc-2.31
+mkdir build && cd build
+../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin
+make
+make install
+strings /lib64/libc.so.6 | grep GLIBC

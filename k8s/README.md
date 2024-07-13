@@ -1,9 +1,8 @@
 # 0、环境准备
-yum install -y vim
-yum install -y net-tools.x86_64 
+yum install -y vim net-tools.x86_64
 
 # 1、指定主机名
-hostnamectl set-hostname k8s-master01
+hostnamectl set-hostname k8s-master
 hostnamectl set-hostname k8s-node01
 hostnamectl set-hostname k8s-node02
 

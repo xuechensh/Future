@@ -21,6 +21,10 @@ yum-config-manager \
 yum update -y && yum install docker-ce docker-ce-cli containerd.io docker-compose-plugin
 systemctl start docker
 systemctl enable docker
+curl -L "https://github.com/docker/compose/releases/download/v2.26.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+docker-compose version
 
 
 ########################################################################################################
@@ -60,6 +64,17 @@ docker run --restart=always -itd --name mongo-test -p 27017:27017 mongo
 docker ps
 docker exec -it mongo-test bash
 
+单机多副本
+mkdir /software/mongodb/config1
+mkdir /software/mongodb/config2
+mkdir /software/mongodb/config3
+mkdir /software/mongodb/shard1
+mkdir /software/mongodb/shard2
+mkdir /software/mongodb/shard3
+
+vim fates-mongo-compose.yaml
+vim deploy-and-start.sh
+bash deploy-and-start.sh
 
 #########################################################################################################
 Elasticsearch
