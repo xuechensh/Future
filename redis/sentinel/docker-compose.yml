@@ -1,0 +1,135 @@
+version: "3.8"
+services:
+  redis-master:
+    image: redis/redis-stack-server
+    container_name: redis-master
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-master-data:/data
+    command: ["redis-server", "--appendonly", "yes", "--protected-mode", "no"]
+    networks:
+      - redis-net
+
+  redis-slave1:
+    image: redis/redis-stack-server
+    container_name: redis-slave1
+    depends_on:
+      - redis-master
+    volumes:
+      - redis-slave1-data:/data
+      - ./wait-for-it.sh:/wait-for-it.sh
+    command:
+      [
+        "./wait-for-it.sh",
+        "redis-master:6379",
+        "--",
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--replicaof",
+        "redis-master",
+        "6379",
+      ]
+    networks:
+      - redis-net
+
+  redis-slave2:
+    image: redis/redis-stack-server
+    container_name: redis-slave2
+    depends_on:
+      - redis-master
+    volumes:
+      - redis-slave2-data:/data
+      - ./wait-for-it.sh:/wait-for-it.sh
+    command:
+      [
+        "./wait-for-it.sh",
+        "redis-master:6379",
+        "--",
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--replicaof",
+        "redis-master",
+        "6379",
+      ]
+    networks:
+      - redis-net
+
+  sentinel1:
+    image: redis/redis-stack-server
+    container_name: redis-sentinel1
+    depends_on:
+      - redis-master
+      - redis-slave1
+      - redis-slave2
+    ports:
+      - "26379:26379"
+    volumes:
+      - ./sentinel1.conf:/etc/redis/sentinel.conf
+      - ./wait-for-it.sh:/wait-for-it.sh
+    command:
+      [
+        "./wait-for-it.sh",
+        "redis-master:6379",
+        "--",
+        "redis-sentinel",
+        "/etc/redis/sentinel.conf",
+      ]
+    networks:
+      - redis-net
+
+  sentinel2:
+    image: redis/redis-stack-server
+    container_name: redis-sentinel2
+    depends_on:
+      - redis-master
+      - redis-slave1
+      - redis-slave2
+    ports:
+      - "26380:26379"
+    volumes:
+      - ./sentinel2.conf:/etc/redis/sentinel.conf
+      - ./wait-for-it.sh:/wait-for-it.sh
+    command:
+      [
+        "./wait-for-it.sh",
+        "redis-master:6379",
+        "--",
+        "redis-sentinel",
+        "/etc/redis/sentinel.conf",
+      ]
+    networks:
+      - redis-net
+
+  sentinel3:
+    image: redis/redis-stack-server
+    container_name: redis-sentinel3
+    depends_on:
+      - redis-master
+      - redis-slave1
+      - redis-slave2
+    ports:
+      - "26381:26379"
+    volumes:
+      - ./sentinel3.conf:/etc/redis/sentinel.conf
+      - ./wait-for-it.sh:/wait-for-it.sh
+    command:
+      [
+        "./wait-for-it.sh",
+        "redis-master:6379",
+        "--",
+        "redis-sentinel",
+        "/etc/redis/sentinel.conf",
+      ]
+    networks:
+      - redis-net
+
+volumes:
+  redis-master-data:
+  redis-slave1-data:
+  redis-slave2-data:
+
+networks:
+  redis-net:
