@@ -55,3 +55,16 @@ registry.dockermirror.com/apache/kafka:3.9.0
 # 验证
 # ./kafka-topics.sh --bootstrap-server 127.0.0.1:9002,127.0.0.1:9003 --create --topic demo --partitions 2 --replication-factor 2
 # ./kafka-topics.sh --bootstrap-server 127.0.0.1:9002,127.0.0.1:9003 --list
+
+# 创建主题
+./kafka-topics.sh --create --topic demo --partitions 1 --replication-factor 1 --bootstrap-server 0.0.0.0:9092
+ 
+# 生产消息
+./kafka-console-producer.sh --topic test --bootstrap-server 0.0.0.0:9092
+ 
+# 消费消息
+./kafka-console-consumer.sh --topic test --bootstrap-server 0.0.0.0:9092
+
+# 单节点Bin文件启动
+./zkServer.sh start
+./kafka-server-start.sh -daemon /root/software/kafka_2.13-3.9.0/config/server.properties 
