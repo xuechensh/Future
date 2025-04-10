@@ -93,7 +93,7 @@ mysql> show master status;
 1 row in set (0.01 sec)
 
 # 进入从节点，配置从节点
-change master to master_host=' 172.21.0.1', master_user='slave', master_password='123456', master_port=33076, master_log_file='mall-mysql-bin.000002', master_log_pos=996, master_connect_retry=30;
+change master to master_host='172.21.0.1', master_user='slave', master_password='123456', master_port=3306, master_log_file='mall-mysql-bin.000002', master_log_pos=996, master_connect_retry=30;
 show slave status \G;
 
 # 进入从节点，开启主从复制
